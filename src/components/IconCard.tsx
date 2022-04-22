@@ -15,9 +15,9 @@ export default function IconCard(props: Props) {
     props = { ...Default, ...props }
 
     return (
-        <div className="flex flex-col items-center rounded-md space-y-0 w-20 py-3 drop-shadow-lg" style={{ backgroundColor: props.cardColor }} >
+        <div className="flex flex-col items-center rounded-2xl space-y-1 w-20 py-3 drop-shadow-lg" style={{ backgroundColor: props.cardColor }} >
             <div className="rounded-full flex h-10 w-10 drop-shadow-xl" style={{ backgroundColor: props.circleColor }}></div>
-            <div className="text-center flex mt-0 text-slate-700">{props.text}</div>
+            <div className="text-center flex text-sm mt-0 text-white">{props.text}</div>
         </div >
     )
 }
