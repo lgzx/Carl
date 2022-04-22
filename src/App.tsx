@@ -1,7 +1,17 @@
+import { emit, listen } from '@tauri-apps/api/event';
+import { invoke } from '@tauri-apps/api/tauri';
+import { useEffect, useState } from 'react';
 import './App.css';
 
-function App() {
+interface Msg {
+    payload: Payload
+}
 
+interface Payload {
+    content?: string
+}
+
+function App() {
     return (
         <div className="Appx">
         </div>
