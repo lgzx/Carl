@@ -31,7 +31,7 @@ fn main() {
 
 #[tauri::command]
 fn test(app: AppHandle) {
-    let mut consumer = Consumer::from_hosts(vec!["kafka08-test.mars.ljnode.com:9092".to_owned()])
+    let mut consumer = Consumer::from_hosts(vec!["".to_owned()])
         .with_topic_partitions("beijia-private-domain-event-test".to_owned(), &[0, 1])
         .with_fallback_offset(FetchOffset::Earliest)
         .with_group("ttestl1og122".to_owned())

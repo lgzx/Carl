@@ -1,6 +1,10 @@
 import IconCard from "../components/IconCard";
+import { useNavigate } from "react-router-dom"
+
 
 export default function Welcome() {
+    let nav = useNavigate()
+
     return (
         <div className="flex min-h-screen flex-col justify-center items-center bg-slate-50 rounded-lg py-10 ">
             <div className="flex flex-col items-center py-10 justify-center space-y-10 border-none drop-shadow-xl bg-white shadow-lg w-9/12 rounded-lg">
@@ -15,13 +19,13 @@ export default function Welcome() {
                     <IconCard text="Redis" cardColor="#FF69F9" />
                 </div>
 
-                <div className="grid grid-cols-3 gap-10  rounded-md h-32 drop-shadow-md  content-around w-9/12 mx-auto">
-                    <div className="col-span-2 grid grid-flow-row">
-                        <input type="" name="" value="" />
-                        <input type="" name="" value="" />
+                <div className="grid grid-cols-8 gap-10  rounded-md h-32 drop-shadow-md  content-around w-9/12 mx-auto  place-items-center">
+                    <div className="col-span-5 grid grid-flow-row">
+                        <input type="" name="" />
+                        <input type="" name="" />
                     </div>
-                    <div className="grid">
-                        <span>Go for it</span>
+                    <div className="grid col-span-2">
+                        <span onClick={e => nav("app")}>Go for it</span>
                     </div>
                 </div>
             </div>
