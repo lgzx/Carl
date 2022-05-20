@@ -28,9 +28,9 @@ fn test_server_add_config() -> Result<()> {
 #[test]
 fn test_server_get_list() -> Result<()> {
     let mut srv = get_server();
-    let req = r#"{"route":"listconfig", "data":""}"#;
+    let req = r#"{"route":"listconfig"}"#;
     let res = &srv.execute(req.into())?;
 
-    assert_eq!(res.data, "pl");
+    assert_eq!(res.status, "ok");
     Ok(())
 }

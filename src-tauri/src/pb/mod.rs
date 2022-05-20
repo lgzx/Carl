@@ -19,7 +19,7 @@ impl From<&str> for Request {
     fn from(s: &str) -> Self {
         let req: HashMap<String, String> = serde_json::from_str(s).unwrap();
         let route = req.get("route").unwrap();
-        let data = req.get("data").unwrap();
+        let data = req.get("data").map_or("", |e| e);
 
         Self {
             route: route.into(),
