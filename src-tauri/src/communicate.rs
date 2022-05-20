@@ -1,17 +1,8 @@
-use core::str;
-use std::thread;
-
-use kafka::{
-    client::{FetchOffset, GroupOffsetStorage},
-    consumer::Consumer,
-};
-use tauri::{App, Manager};
-
-use crate::event::Payload;
+use tauri::{App, Event, Manager};
 
 pub fn register_handlers(app: &mut App) {
     app.app_handle()
-        .listen_global("test-event", |evt| println!("{:?}", evt));
+        .listen_global("config:kafka:list_configs", list_config);
 }
 
-fn send_kafka(app: &mut App) {}
+fn list_config(evt: Event) {}

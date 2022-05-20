@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package abi;
+
+message Config {
+  string broker = 1;
+  string topic = 2;
+}
+
+message Request {
+  string route = 1;
+  string data = 2;
+}
+
+message Response {
+  string status = 1;
+  string data = 2;
+}
+
+message Cmd {
+  oneof request_cmd { AddConfig addconfig = 1; }
+}
+
+message AddConfig { Config cfg = 1; }

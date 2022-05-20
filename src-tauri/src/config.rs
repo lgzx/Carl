@@ -1,114 +1,92 @@
 use std::{
-    collections::HashMap,
-    fmt::Debug,
-    sync::atomic::{AtomicI32, Ordering},
+    any, env,
+    fs::{self},
 };
 
+use anyhow::Result;
+use serde::{Deserialize, Deserializer, Serialize};
+
+#[derive(Default, Deserialize, Clone, Serialize)]
 pub struct KafkaConfig {
-    pub brokers: String,
-    pub topics: String,
+    pub clusters: Box<Vec<ClusterConfig>>,
 }
 
-impl Default for KafkaConfig {
-    fn default() -> Self {
-        Self {
-            brokers: Default::default(),
-            topics: Default::default(),
-        }
-    }
-}
-
-pub enum ConfigEnum {
-    Kafka(KafkaConfig),
-}
-
-impl Debug for ConfigEnum {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ConfigEnum::Kafka(v) => write!(f, "{} => {}", v.brokers, v.topics),
-        }
-    }
-}
-
-//管理数据配置
-pub trait ConfigStorage {
-    fn new() -> Self;
-
-    fn add_config(&mut self, config: ConfigEnum) -> bool;
-
-    fn list_config(&self) -> &HashMap<i32, ConfigEnum>;
-
-    fn delete_config(&self, config_id: i32) -> bool;
+#[derive(Deserialize, Clone, Serialize)]
+pub struct ClusterConfig {
+    broker: String,
+    topic: String,
 }
 
 #[derive(Default)]
-pub struct KafkaMemStorage {
-    maps: HashMap<i32, ConfigEnum>,
-    counter: AtomicI32,
+pub struct TomlStore {
+    pub config_path: String,
+    pub configs: KafkaConfig,
 }
 
-impl ConfigStorage for KafkaMemStorage {
-    fn new() -> Self {
-        KafkaMemStorage {
-            maps: HashMap::new(),
-            counter: AtomicI32::new(0),
+impl TomlStore {
+    pub fn new_with_path(config_path: String) -> Self {
+        Self {
+            config_path: config_path.clone(),
+            configs: toml::from_str(&fs::read_to_string(&config_path[..]).unwrap()).unwrap(),
+            ..Default::default()
         }
     }
 
-    fn add_config(&mut self, config: ConfigEnum) -> bool {
-        let id = self.counter.fetch_add(1, Ordering::AcqRel);
-        self.maps.insert(id, config);
-        true
+    pub fn new() -> Self {
+        let home_path = env::home_dir().unwrap();
+        let config_path = format!("{}/.carl", home_path.to_str().unwrap());
+        let mut store = Self {
+            config_path,
+            ..Default::default()
+        };
+
+        let config: KafkaConfig =
+            toml::from_str(&fs::read_to_string(&store.config_path).unwrap()).unwrap();
+
+        store.configs = config;
+
+        store
     }
 
-    fn list_config(&self) -> &HashMap<i32, ConfigEnum> {
-        &self.maps
-    }
-
-    fn delete_config(&self, config_id: i32) -> bool {
-        todo!()
-    }
-}
-
-pub struct KafkaStorage {}
-
-impl Default for KafkaStorage {
-    fn default() -> Self {
-        Self {}
-    }
-}
-
-impl ConfigStorage for KafkaStorage {
-    fn add_config(&mut self, config: ConfigEnum) -> bool {
-        todo!()
-    }
-
-    fn list_config(&self) -> &HashMap<i32, ConfigEnum> {
-        todo!()
-    }
-
-    fn delete_config(&self, config_id: i32) -> bool {
-        todo!()
-    }
-
-    fn new() -> Self {
-        todo!()
+    fn persist(&self) -> Result<bool> {
+        let v = toml::to_string(&self.configs)?;
+        fs::write(&self.config_path, v).map(|v| Ok(true))?
     }
 }
 
-//管理用户配置
-pub trait UserSetting {}
+impl ConfigStore for TomlStore {
+    fn add(&mut self, k: &str, v: &str) -> Result<bool> {
+        self.configs.clusters.push(ClusterConfig {
+            broker: k.to_string(),
+            topic: v.to_string(),
+        });
+        self.persist()?;
+        Ok(true)
+    }
+
+    fn list(&self) -> Result<KafkaConfig> {
+        Ok(self.configs.clone())
+    }
+}
+
+// 配置存储
+pub trait ConfigStore {
+    fn add(&mut self, k: &str, v: &str) -> Result<bool>;
+    fn list(&self) -> Result<KafkaConfig>;
+}
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::{ConfigStore, TomlStore};
 
     #[test]
-    fn test_add_kafka_config() {
-        let mut store = KafkaMemStorage::new();
-        let kafka_config = KafkaConfig::default();
-        store.add_config(ConfigEnum::Kafka(kafka_config));
-        let lists = store.list_config();
-        lists.iter().enumerate().for_each(|f| println!("{:?}", f))
+    fn test_new_toml() {
+        let config = TomlStore::new_with_path("/Users/zhangruobin/.carltest".to_string());
+    }
+
+    #[test]
+    fn test_add_config() {
+        let mut config = TomlStore::new_with_path("/Users/zhangruobin/.carltest".to_string());
+        config.add("btoker2", "topic2");
     }
 }
