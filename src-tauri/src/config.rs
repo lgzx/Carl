@@ -77,16 +77,29 @@ pub trait ConfigStore {
 
 #[cfg(test)]
 mod tests {
+    use crate::config::KafkaConfig;
+
     use super::{ConfigStore, TomlStore};
+
+    fn get_config() -> TomlStore {
+        TomlStore::new_with_path("/Users/zhangruobin/.carltest".to_string())
+    }
 
     #[test]
     fn test_new_toml() {
-        let config = TomlStore::new_with_path("/Users/zhangruobin/.carltest".to_string());
+        let config = get_config();
     }
 
     #[test]
     fn test_add_config() {
-        let mut config = TomlStore::new_with_path("/Users/zhangruobin/.carltest".to_string());
+        let mut config = get_config();
         config.add("btoker2", "topic2");
+    }
+
+    #[test]
+    fn test_list_config() {
+        let config = get_config();
+        let lists = config.list().unwrap();
+        assert_eq!(lists.clusters.len(), 1);
     }
 }
