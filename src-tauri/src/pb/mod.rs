@@ -5,6 +5,8 @@ use std::collections::HashMap;
 
 pub use abi::*;
 
+use crate::config::KafkaConfig;
+
 use self::cmd::RequestCmd;
 
 impl From<&str> for Config {
@@ -39,12 +41,22 @@ impl From<bool> for Response {
     }
 }
 
+impl From<KafkaConfig> for Response {
+    fn from(config: KafkaConfig) -> Self {
+        Self {
+            data: serde_json::to_string(&config.clusters).unwrap(),
+            status: "ok".to_string(),
+        }
+    }
+}
+
 impl From<(&str, &str)> for Cmd {
     fn from(info: (&str, &str)) -> Self {
         let inner_cmd = match info.0 {
             "addconfig" => RequestCmd::Addconfig(AddConfig {
                 cfg: Some(info.1.into()),
             }),
+            "listconfig" => RequestCmd::Listconfig(ListConfig {}),
             _ => panic!("error parse cmd"),
         };
         Self {

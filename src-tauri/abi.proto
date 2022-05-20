@@ -18,7 +18,12 @@ message Response {
 }
 
 message Cmd {
-  oneof request_cmd { AddConfig addconfig = 1; }
+  oneof request_cmd {
+    AddConfig addconfig = 1;
+    ListConfig listconfig = 2;
+  }
 }
 
 message AddConfig { Config cfg = 1; }
+
+message ListConfig {}

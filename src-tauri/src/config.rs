@@ -1,10 +1,8 @@
-use std::{
-    any, env,
-    fs::{self},
-};
+use std::{env, fs};
 
 use anyhow::Result;
-use serde::{Deserialize, Deserializer, Serialize};
+use serde::Deserializer;
+use serde::{Deserialize, Serialize};
 
 #[derive(Default, Deserialize, Clone, Serialize)]
 pub struct KafkaConfig {
