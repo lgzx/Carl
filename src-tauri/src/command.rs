@@ -3,12 +3,23 @@ use std::collections::HashMap;
 use anyhow::{Ok, Result};
 
 use crate::{
-    pb::{AddConfig, ListConfig, Response},
+    pb::{request::RequestCmd, AddConfig, ListConfig, PullMessage, Request, Response},
     server::Server,
 };
 
 pub trait Execute {
     fn execute(&self, server: &mut impl Server) -> Result<Response>;
+}
+
+impl Execute for Request {
+    fn execute(&self, server: &mut impl Server) -> Result<Response> {
+        match &self.request_cmd {
+            Some(RequestCmd::Listconfig(param)) => param.execute(server),
+            Some(RequestCmd::Addconfig(param)) => param.execute(server),
+            Some(RequestCmd::Pullmessage(param)) => param.execute(server),
+            None => todo!(),
+        }
+    }
 }
 
 impl Execute for AddConfig {
@@ -24,5 +35,11 @@ impl Execute for AddConfig {
 impl Execute for ListConfig {
     fn execute(&self, server: &mut impl Server) -> Result<Response> {
         server.list_config().map(|v| v.into())
+    }
+}
+
+impl Execute for PullMessage {
+    fn execute(&self, server: &mut impl Server) -> Result<Response> {
+        Ok("tttttt".to_string().into())
     }
 }

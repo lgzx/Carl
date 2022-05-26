@@ -1,9 +1,29 @@
 import IconCard from "../components/IconCard";
 import { useNavigate } from "react-router-dom"
+import { emit, listen } from "@tauri-apps/api/event";
+import { useEffect, useState } from "react";
+import { AddConfig, Cmd, ListConfig, Request } from "../proto/abi";
+import { emitRequestAsync } from "../common/hooks";
 
 
 export default function Welcome() {
     let nav = useNavigate()
+
+
+    const addConfig = (b: string, t: string) => {
+        let addconfig: Request = { requestCmd: { oneofKind: "addconfig", addconfig: { cfg: { broker: b, topic: t } } } }
+        emitRequestAsync(addconfig);
+    };
+
+    useEffect(() => {
+        listen("event-back", (e) => {
+            const payload = e.payload as { data: string };
+            console.log(payload)
+        });
+    }, [])
+
+    const [broker, setBroker] = useState("");
+    const [topic, setTopic] = useState("");
 
     return (
         <div className="flex min-h-screen flex-col justify-center items-center bg-slate-50 rounded-lg py-10 ">
@@ -21,11 +41,11 @@ export default function Welcome() {
 
                 <div className="grid grid-cols-8 gap-10  rounded-md h-32 drop-shadow-md  content-around w-9/12 mx-auto  place-items-center">
                     <div className="col-span-5 grid grid-flow-row">
-                        <input type="" name="" />
-                        <input type="" name="" />
+                        <input type="" name="" onChange={e => setBroker(e.target.value)} />
+                        <input type="" name="" onChange={e => setTopic(e.target.value)} />
                     </div>
                     <div className="grid col-span-2">
-                        <span onClick={e => nav("app")}>Go for it</span>
+                        <span onClick={e => addConfig(broker, topic)}>Go for it</span>
                     </div>
                 </div>
             </div>

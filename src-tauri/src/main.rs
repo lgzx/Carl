@@ -5,7 +5,9 @@
 
 mod communicate;
 
+use app::server::KafkaServer;
 use communicate::register_handlers;
+use tauri::{Manager, WindowBuilder, WindowUrl};
 
 fn main() {
     tauri::Builder::default()

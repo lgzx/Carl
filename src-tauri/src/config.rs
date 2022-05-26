@@ -4,12 +4,12 @@ use anyhow::Result;
 use serde::Deserializer;
 use serde::{Deserialize, Serialize};
 
-#[derive(Default, Deserialize, Clone, Serialize)]
+#[derive(Default, Deserialize, Clone, Serialize, Debug)]
 pub struct KafkaConfig {
     pub clusters: Box<Vec<ClusterConfig>>,
 }
 
-#[derive(Deserialize, Clone, Serialize)]
+#[derive(Deserialize, Clone, Serialize, Debug)]
 pub struct ClusterConfig {
     broker: String,
     topic: String,

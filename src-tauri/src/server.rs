@@ -1,11 +1,12 @@
 use core::str;
+use std::sync::Arc;
 
 use anyhow::Result;
 
 use crate::{
     command::Execute,
     config::{ConfigStore, KafkaConfig, TomlStore},
-    pb::{cmd::RequestCmd, Cmd, Request, Response},
+    pb::{Request, Response},
 };
 
 pub trait Server {
@@ -19,15 +20,11 @@ pub struct KafkaServer {
     pub config: Box<dyn ConfigStore>,
 }
 
+unsafe impl Send for KafkaServer {}
+
 impl Server for KafkaServer {
     fn execute(&mut self, request: Request) -> Result<Response> {
-        let cmd: Cmd = request.into();
-
-        match cmd.request_cmd {
-            Some(RequestCmd::Addconfig(cmd)) => cmd.execute(self),
-            Some(RequestCmd::Listconfig(cmd)) => cmd.execute(self),
-            None => todo!(),
-        }
+        todo!()
     }
 
     fn add_config(&mut self, broker: &str, topic: &str) -> Result<bool> {

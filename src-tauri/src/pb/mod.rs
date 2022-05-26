@@ -4,10 +4,9 @@ use core::panic;
 use std::collections::HashMap;
 
 pub use abi::*;
+use serde_json::Value;
 
 use crate::config::KafkaConfig;
-
-use self::cmd::RequestCmd;
 
 impl From<&str> for Config {
     fn from(s: &str) -> Self {
@@ -17,13 +16,8 @@ impl From<&str> for Config {
 
 impl From<&str> for Request {
     fn from(s: &str) -> Self {
-        let req: HashMap<String, String> = serde_json::from_str(s).unwrap();
-        let route = req.get("route").unwrap();
-        let data = req.get("data").map_or("", |e| e);
-
         Self {
-            route: route.into(),
-            data: data.into(),
+            ..Default::default()
         }
     }
 }
@@ -50,55 +44,16 @@ impl From<KafkaConfig> for Response {
     }
 }
 
-impl From<(&str, &str)> for Cmd {
-    fn from(info: (&str, &str)) -> Self {
-        let inner_cmd = match info.0 {
-            "addconfig" => RequestCmd::Addconfig(AddConfig {
-                cfg: Some(info.1.into()),
-            }),
-            "listconfig" => RequestCmd::Listconfig(ListConfig {}),
-            _ => panic!("error parse cmd"),
-        };
+impl From<String> for Response {
+    fn from(s: String) -> Self {
         Self {
-            request_cmd: Some(inner_cmd),
+            status: "ok".to_string(),
+            data: s,
         }
-    }
-}
-
-impl From<Request> for Cmd {
-    fn from(req: Request) -> Self {
-        (&req.route[..], &req.data[..]).into()
     }
 }
 
 #[cfg(test)]
 mod test {
     use super::*;
-    #[test]
-    fn test_str_to_request() {
-        let req = r#"{"route": "test", "data":""}"#;
-
-        let request: Request = req.into();
-
-        let excepted = Request {
-            route: "test".to_string(),
-            ..Default::default()
-        };
-
-        assert_eq!(request, excepted);
-    }
-
-    #[test]
-    fn test_request_to_cmd() {
-        let req = r#"{"route": "addconfig", "data":"{\"broker\":\"123\", \"topic\":\"ttt\"}"}"#;
-
-        let request: Request = req.into();
-
-        let cmd: Cmd = request.into();
-        let excepcted: Cmd = Cmd {
-            ..Default::default()
-        };
-
-        assert_eq!(cmd, excepcted);
-    }
 }

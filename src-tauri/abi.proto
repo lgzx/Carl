@@ -8,8 +8,11 @@ message Config {
 }
 
 message Request {
-  string route = 1;
-  string data = 2;
+  oneof request_cmd {
+    AddConfig addconfig = 1;
+    ListConfig listconfig = 2;
+    PullMessage pullmessage = 3;
+  }
 }
 
 message Response {
@@ -17,13 +20,8 @@ message Response {
   string data = 2;
 }
 
-message Cmd {
-  oneof request_cmd {
-    AddConfig addconfig = 1;
-    ListConfig listconfig = 2;
-  }
-}
-
 message AddConfig { Config cfg = 1; }
 
 message ListConfig {}
+
+message PullMessage { Config cfg = 1; }

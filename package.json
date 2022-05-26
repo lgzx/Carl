@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@protobuf-ts/plugin": "^2.6.0",
     "@tauri-apps/api": "^1.0.0-rc.3",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^13.0.0",
@@ -26,6 +27,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "proto": "npx protoc --ts_out ./src/proto/ --proto_path src-tauri src-tauri/abi.proto",
     "tauri": "tauri"
   },
   "eslintConfig": {
