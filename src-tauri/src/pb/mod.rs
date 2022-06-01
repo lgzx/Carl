@@ -1,9 +1,13 @@
 pub mod abi;
 
 use core::panic;
-use std::collections::HashMap;
+use std::{
+    collections::{BTreeMap, HashMap},
+    io::Cursor,
+};
 
 pub use abi::*;
+use prost::{DecodeError, Message};
 use serde_json::Value;
 
 use crate::config::KafkaConfig;
@@ -14,10 +18,16 @@ impl From<&str> for Config {
     }
 }
 
-impl From<&str> for Request {
-    fn from(s: &str) -> Self {
-        Self {
-            ..Default::default()
+impl From<String> for Request {
+    fn from(s: String) -> Self {
+        let byte_info: Vec<u8> = s.split(",").map(|sstr| sstr.to_string().parse::<u8>().unwrap()).into_iter().collect();
+        let req: Result<Request, DecodeError> = Message::decode(&mut Cursor::new(&byte_info));
+        if let Ok(info) = req {
+            info
+        } else {
+            Self {
+                ..Default::default()
+            }
         }
     }
 }

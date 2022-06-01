@@ -1,9 +1,9 @@
-use anyhow::Result;
-use app::{
+use crate::{
     config::TomlStore,
     pb::{cmd::RequestCmd, AddConfig, Cmd, Config, Request},
     server::{KafkaServer, Server},
 };
+use anyhow::Result;
 
 fn get_server() -> Box<dyn Server> {
     let mut srv = Box::new(KafkaServer::new());

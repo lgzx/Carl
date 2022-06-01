@@ -1,9 +1,10 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, thread, time::Duration};
 
 use anyhow::{Ok, Result};
+use tauri::async_runtime;
 
 use crate::{
-    pb::{request::RequestCmd, AddConfig, ListConfig, PullMessage, Request, Response},
+    pb::{request::RequestCmd, AddConfig, CheckBroker, ListConfig, PullMessage, Request, Response},
     server::Server,
 };
 
@@ -17,6 +18,7 @@ impl Execute for Request {
             Some(RequestCmd::Listconfig(param)) => param.execute(server),
             Some(RequestCmd::Addconfig(param)) => param.execute(server),
             Some(RequestCmd::Pullmessage(param)) => param.execute(server),
+            Some(RequestCmd::Checkbroker(param)) => param.execute(server),
             None => todo!(),
         }
     }
@@ -41,5 +43,13 @@ impl Execute for ListConfig {
 impl Execute for PullMessage {
     fn execute(&self, server: &mut impl Server) -> Result<Response> {
         Ok("tttttt".to_string().into())
+    }
+}
+
+impl Execute for CheckBroker {
+    fn execute(&self, server: &mut impl Server) -> Result<Response> {
+        server
+            .check_broker(&self.broker)
+            .map(|v| v.to_string().into())
     }
 }

@@ -50,6 +50,12 @@ export interface Request {
          */
         pullmessage: PullMessage;
     } | {
+        oneofKind: "checkbroker";
+        /**
+         * @generated from protobuf field: abi.CheckBroker checkbroker = 4;
+         */
+        checkbroker: CheckBroker;
+    } | {
         oneofKind: undefined;
     };
 }
@@ -67,35 +73,6 @@ export interface Response {
     data: string;
 }
 /**
- * @generated from protobuf message abi.Cmd
- */
-export interface Cmd {
-    /**
-     * @generated from protobuf oneof: request_cmd
-     */
-    requestCmd: {
-        oneofKind: "addconfig";
-        /**
-         * @generated from protobuf field: abi.AddConfig addconfig = 1;
-         */
-        addconfig: AddConfig;
-    } | {
-        oneofKind: "listconfig";
-        /**
-         * @generated from protobuf field: abi.ListConfig listconfig = 2;
-         */
-        listconfig: ListConfig;
-    } | {
-        oneofKind: "pullmessage";
-        /**
-         * @generated from protobuf field: abi.PullMessage pullmessage = 3;
-         */
-        pullmessage: PullMessage;
-    } | {
-        oneofKind: undefined;
-    };
-}
-/**
  * @generated from protobuf message abi.AddConfig
  */
 export interface AddConfig {
@@ -103,6 +80,15 @@ export interface AddConfig {
      * @generated from protobuf field: abi.Config cfg = 1;
      */
     cfg?: Config;
+}
+/**
+ * @generated from protobuf message abi.CheckBroker
+ */
+export interface CheckBroker {
+    /**
+     * @generated from protobuf field: string broker = 1;
+     */
+    broker: string;
 }
 /**
  * @generated from protobuf message abi.ListConfig
@@ -178,7 +164,8 @@ class Request$Type extends MessageType<Request> {
         super("abi.Request", [
             { no: 1, name: "addconfig", kind: "message", oneof: "requestCmd", T: () => AddConfig },
             { no: 2, name: "listconfig", kind: "message", oneof: "requestCmd", T: () => ListConfig },
-            { no: 3, name: "pullmessage", kind: "message", oneof: "requestCmd", T: () => PullMessage }
+            { no: 3, name: "pullmessage", kind: "message", oneof: "requestCmd", T: () => PullMessage },
+            { no: 4, name: "checkbroker", kind: "message", oneof: "requestCmd", T: () => CheckBroker }
         ]);
     }
     create(value?: PartialMessage<Request>): Request {
@@ -211,6 +198,12 @@ class Request$Type extends MessageType<Request> {
                         pullmessage: PullMessage.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).pullmessage)
                     };
                     break;
+                case /* abi.CheckBroker checkbroker */ 4:
+                    message.requestCmd = {
+                        oneofKind: "checkbroker",
+                        checkbroker: CheckBroker.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).checkbroker)
+                    };
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -232,6 +225,9 @@ class Request$Type extends MessageType<Request> {
         /* abi.PullMessage pullmessage = 3; */
         if (message.requestCmd.oneofKind === "pullmessage")
             PullMessage.internalBinaryWrite(message.requestCmd.pullmessage, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
+        /* abi.CheckBroker checkbroker = 4; */
+        if (message.requestCmd.oneofKind === "checkbroker")
+            CheckBroker.internalBinaryWrite(message.requestCmd.checkbroker, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -297,76 +293,6 @@ class Response$Type extends MessageType<Response> {
  */
 export const Response = new Response$Type();
 // @generated message type with reflection information, may provide speed optimized methods
-class Cmd$Type extends MessageType<Cmd> {
-    constructor() {
-        super("abi.Cmd", [
-            { no: 1, name: "addconfig", kind: "message", oneof: "requestCmd", T: () => AddConfig },
-            { no: 2, name: "listconfig", kind: "message", oneof: "requestCmd", T: () => ListConfig },
-            { no: 3, name: "pullmessage", kind: "message", oneof: "requestCmd", T: () => PullMessage }
-        ]);
-    }
-    create(value?: PartialMessage<Cmd>): Cmd {
-        const message = { requestCmd: { oneofKind: undefined } };
-        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
-        if (value !== undefined)
-            reflectionMergePartial<Cmd>(this, message, value);
-        return message;
-    }
-    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: Cmd): Cmd {
-        let message = target ?? this.create(), end = reader.pos + length;
-        while (reader.pos < end) {
-            let [fieldNo, wireType] = reader.tag();
-            switch (fieldNo) {
-                case /* abi.AddConfig addconfig */ 1:
-                    message.requestCmd = {
-                        oneofKind: "addconfig",
-                        addconfig: AddConfig.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).addconfig)
-                    };
-                    break;
-                case /* abi.ListConfig listconfig */ 2:
-                    message.requestCmd = {
-                        oneofKind: "listconfig",
-                        listconfig: ListConfig.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).listconfig)
-                    };
-                    break;
-                case /* abi.PullMessage pullmessage */ 3:
-                    message.requestCmd = {
-                        oneofKind: "pullmessage",
-                        pullmessage: PullMessage.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).pullmessage)
-                    };
-                    break;
-                default:
-                    let u = options.readUnknownField;
-                    if (u === "throw")
-                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
-                    let d = reader.skip(wireType);
-                    if (u !== false)
-                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
-            }
-        }
-        return message;
-    }
-    internalBinaryWrite(message: Cmd, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
-        /* abi.AddConfig addconfig = 1; */
-        if (message.requestCmd.oneofKind === "addconfig")
-            AddConfig.internalBinaryWrite(message.requestCmd.addconfig, writer.tag(1, WireType.LengthDelimited).fork(), options).join();
-        /* abi.ListConfig listconfig = 2; */
-        if (message.requestCmd.oneofKind === "listconfig")
-            ListConfig.internalBinaryWrite(message.requestCmd.listconfig, writer.tag(2, WireType.LengthDelimited).fork(), options).join();
-        /* abi.PullMessage pullmessage = 3; */
-        if (message.requestCmd.oneofKind === "pullmessage")
-            PullMessage.internalBinaryWrite(message.requestCmd.pullmessage, writer.tag(3, WireType.LengthDelimited).fork(), options).join();
-        let u = options.writeUnknownFields;
-        if (u !== false)
-            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
-        return writer;
-    }
-}
-/**
- * @generated MessageType for protobuf message abi.Cmd
- */
-export const Cmd = new Cmd$Type();
-// @generated message type with reflection information, may provide speed optimized methods
 class AddConfig$Type extends MessageType<AddConfig> {
     constructor() {
         super("abi.AddConfig", [
@@ -413,6 +339,53 @@ class AddConfig$Type extends MessageType<AddConfig> {
  * @generated MessageType for protobuf message abi.AddConfig
  */
 export const AddConfig = new AddConfig$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CheckBroker$Type extends MessageType<CheckBroker> {
+    constructor() {
+        super("abi.CheckBroker", [
+            { no: 1, name: "broker", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<CheckBroker>): CheckBroker {
+        const message = { broker: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<CheckBroker>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CheckBroker): CheckBroker {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string broker */ 1:
+                    message.broker = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CheckBroker, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string broker = 1; */
+        if (message.broker !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.broker);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message abi.CheckBroker
+ */
+export const CheckBroker = new CheckBroker$Type();
 // @generated message type with reflection information, may provide speed optimized methods
 class ListConfig$Type extends MessageType<ListConfig> {
     constructor() {

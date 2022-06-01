@@ -13,6 +13,7 @@ use crate::pb::Config;
 pub trait KafkaTuber {
     fn consume(&self, topic: String, f: &mut impl io::Write) -> Result<u32>;
     fn produce(&self, topic: String, payload: String);
+    fn check(&mut self) -> Result<bool>;
 }
 
 #[derive(Debug)]
@@ -21,10 +22,9 @@ pub struct Kafka {
 }
 
 impl Kafka {
-    pub fn new(config: &Config) -> Self {
+    pub fn new(config: Config) -> Self {
         let broker = config.broker.to_string();
         let mut client = KafkaClient::new(vec![broker]);
-        client.load_metadata_all().unwrap();
         Self { client }
     }
 }
@@ -60,6 +60,14 @@ impl KafkaTuber for Kafka {
         let record = Record::from_value("sample.topic", payload.as_bytes());
         p.send(&record).unwrap();
     }
+
+    fn check(&mut self) -> Result<bool> {
+        if let Ok(_) = self.client.load_metadata_all() {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
 }
 
 #[cfg(test)]
@@ -83,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_tuber_can_consume() {
-        let mut kafka = Kafka::new(&Config {
+        let mut kafka = Kafka::new(Config {
             broker: "152.136.112.21:31092".to_string(),
             topic: "sample.topic".to_string(),
         });
@@ -94,11 +102,19 @@ mod tests {
 
     #[test]
     fn test_tuber_can_produce() {
-        let mut kafka = Kafka::new(&Config {
+        let mut kafka = Kafka::new(Config {
             broker: "152.136.112.21:31092".to_string(),
             topic: "sample.topic".to_string(),
         });
 
-        kafka.produce("sample.topic".to_string(), "test".to_string());
+        kafka.produce(
+            "sample.topic".to_string(),
+            kafka
+                .client
+                .topics()
+                .into_iter()
+                .map(|x| String::from(x.name()))
+                .collect(),
+        );
     }
 }

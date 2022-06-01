@@ -25,6 +25,7 @@ config = "0.13.1"
 prost = "0.10"
 sled = "0.34"
 toml = "0.5"
+cocoa = "0.24"
 
 [features]
 # by default Tauri runs in production mode

@@ -4,13 +4,14 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use crate::{command::Execute, pb::Request, server::KafkaServer};
 use anyhow::Result;
-use app::pb::Response;
-use app::{command::Execute, pb::Request, server::KafkaServer};
 use prost::{DecodeError, Message};
 use tauri::{App, Manager};
 
-pub fn register_handlers(app: &mut App) {
+use crate::pb::Response;
+
+pub fn register_handlers(app: &mut App, srv: Arc<Mutex<KafkaServer>>) {
     let srv = Arc::new(Mutex::new(KafkaServer::new()));
     let srv_clone = srv.clone();
     let mut window = app.get_window("main").unwrap();

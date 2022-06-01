@@ -12,6 +12,7 @@ message Request {
     AddConfig addconfig = 1;
     ListConfig listconfig = 2;
     PullMessage pullmessage = 3;
+    CheckBroker checkbroker = 4;
   }
 }
 
@@ -21,6 +22,8 @@ message Response {
 }
 
 message AddConfig { Config cfg = 1; }
+
+message CheckBroker { string broker = 1; }
 
 message ListConfig {}
 
