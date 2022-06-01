@@ -1,12 +1,11 @@
 import { faAdd, faCheck, faGift, faHeartBroken } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { sendNotification } from "@tauri-apps/api/notification";
-import { checkUpdate, installUpdate } from "@tauri-apps/api/updater";
 import { WebviewWindow } from "@tauri-apps/api/window";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import config from "../api/config";
 import { ConfigItem, KafkaConfigItem } from "../components/KafkaConfigItem";
+import Spin from "../components/Spin";
 import { FloatIcon, FloatIconProp } from "../components/welcome/FloatIcon";
 
 export default function Welcome() {
@@ -43,8 +42,10 @@ export default function Welcome() {
         )
     })
 
+
     return (
         <div className="grid grid-cols-3  min-h-screen max-h-screen text-sm">
+            <Spin />
             {/* left  */}
             <div className="col-span-1 flex flex-row items-center justify-center bg-gray-100">
                 <div className="w-full ">

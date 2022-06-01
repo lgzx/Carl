@@ -1,7 +1,8 @@
 import { invoke } from "@tauri-apps/api";
 import { Request, Response } from "../proto/abi";
+import bus from "../utils/EventBus";
 
-const DEFAULT_TIMEOUT = 1000;
+const DEFAULT_TIMEOUT = 10000;
 
 export interface ConfigApi {
     configAdd(broker: string, name?: string): Promise<any>;
@@ -43,7 +44,22 @@ function run(req: Request): Promise<any> {
 }
 
 function runWithTimeout(req: Request, timeout: number): Promise<any> {
-    return Promise.race([run(req), new Promise((_res, rej) => setTimeout(() => { rej("timeout") }, timeout))]);
+    return wrapPromiseWithSpiner(Promise.race([run(req), new Promise((_res, rej) => setTimeout(() => { rej("timeout") }, timeout))]));
+}
+
+function wrapPromiseWithSpiner(promise: Promise<any>) {
+    return new Promise((res, rej) => {
+        bus.notice("loading", true);
+        console.log("start request");
+        promise.then(d => {
+            res(d)
+        }).catch(e => {
+            rej(e)
+        }).finally(() => {
+            console.log("end request");
+            bus.notice("loading", false);
+        })
+    })
 }
 
 export default config;
