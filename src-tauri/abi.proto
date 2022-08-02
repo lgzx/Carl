@@ -13,6 +13,8 @@ message Request {
     ListConfig listconfig = 2;
     PullMessage pullmessage = 3;
     CheckBroker checkbroker = 4;
+    ListTopics listtopics = 5;
+    CloseChannel closechannel = 6;
   }
 }
 
@@ -28,3 +30,7 @@ message CheckBroker { string broker = 1; }
 message ListConfig {}
 
 message PullMessage { Config cfg = 1; }
+
+message ListTopics { string broker = 1; }
+
+message CloseChannel { string channel = 1; }

@@ -2,13 +2,15 @@ import { invoke } from "@tauri-apps/api";
 import { Request, Response } from "../proto/abi";
 import bus from "../utils/EventBus";
 
-const DEFAULT_TIMEOUT = 10000;
+export const DEFAULT_TIMEOUT = 10000;
 
 export interface ConfigApi {
     configAdd(broker: string, name?: string): Promise<any>;
     configList(): Promise<any>;
     checkBroker(broker: string): Promise<Response>;
+    topicList(broker: string): Promise<string[]>;
 }
+
 
 const config: ConfigApi = {
     configAdd: (broker, name) => {
@@ -22,8 +24,12 @@ const config: ConfigApi = {
     },
 
     checkBroker: function(broker: string): Promise<Response> {
-        let checkBrokerPb: Request = { requestCmd: { oneofKind: "checkbroker", checkbroker: { broker: broker } } }
+        let checkBrokerPb: Request = { requestCmd: { oneofKind: "checkbroker", checkbroker: { broker: broker } } };
         return runWithTimeout(checkBrokerPb, DEFAULT_TIMEOUT);
+    },
+    topicList: function(broker: string): Promise<string[]> {
+        let topicListPb: Request = { requestCmd: { oneofKind: "listtopics", listtopics: { broker: broker } } }
+        return runWithTimeout(topicListPb, DEFAULT_TIMEOUT);
     }
 }
 
@@ -35,7 +41,7 @@ function run(req: Request): Promise<any> {
                     rsp.data = JSON.parse(rsp?.data)
                 } catch (e) {
                 }
-                resolve(rsp);
+                resolve(rsp.data);
             } else {
                 reject(new Error(`request failed, status : ${rsp?.status}`))
             }
@@ -43,20 +49,20 @@ function run(req: Request): Promise<any> {
     })
 }
 
-function runWithTimeout(req: Request, timeout: number): Promise<any> {
-    return wrapPromiseWithSpiner(Promise.race([run(req), new Promise((_res, rej) => setTimeout(() => { rej("timeout") }, timeout))]));
+export function runWithTimeout(req: Request, timeout: number): Promise<any> {
+    return wrapPromiseWithSpiner(Promise.race([run(req), new Promise((_res, rej) => setTimeout(() => { rej("timeout") }, timeout))]), req);
 }
 
-function wrapPromiseWithSpiner(promise: Promise<any>) {
+function wrapPromiseWithSpiner(promise: Promise<any>, req: Request) {
     return new Promise((res, rej) => {
         bus.notice("loading", true);
-        console.log("start request");
         promise.then(d => {
+            console.log(d, req)
             res(d)
         }).catch(e => {
+            console.log("req", e, req)
             rej(e)
         }).finally(() => {
-            console.log("end request");
             bus.notice("loading", false);
         })
     })

@@ -6,7 +6,7 @@ export default function Spin() {
 
     useEffect(() => {
         bus.register("loading", loading => {
-            if (loading == true) {
+            if (loading === true) {
                 setLoading(e => true)
             } else {
                 setLoading(e => false)

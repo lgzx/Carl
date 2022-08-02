@@ -9,6 +9,7 @@ use std::{
 pub use abi::*;
 use prost::{DecodeError, Message};
 use serde_json::Value;
+use tauri::Size;
 
 use crate::config::KafkaConfig;
 
@@ -20,7 +21,11 @@ impl From<&str> for Config {
 
 impl From<String> for Request {
     fn from(s: String) -> Self {
-        let byte_info: Vec<u8> = s.split(",").map(|sstr| sstr.to_string().parse::<u8>().unwrap()).into_iter().collect();
+        let byte_info: Vec<u8> = s
+            .split(",")
+            .map(|sstr| sstr.to_string().parse::<u8>().unwrap())
+            .into_iter()
+            .collect();
         let req: Result<Request, DecodeError> = Message::decode(&mut Cursor::new(&byte_info));
         if let Ok(info) = req {
             info
@@ -59,6 +64,15 @@ impl From<String> for Response {
         Self {
             status: "ok".to_string(),
             data: s,
+        }
+    }
+}
+
+impl From<Vec<String>> for Response {
+    fn from(t: Vec<String>) -> Self {
+        Self {
+            status: "ok".to_string(),
+            data: serde_json::to_string(&t).unwrap(),
         }
     }
 }

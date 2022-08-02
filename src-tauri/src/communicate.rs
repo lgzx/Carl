@@ -5,7 +5,7 @@ use std::{
 };
 
 use crate::{command::Execute, pb::Request, server::KafkaServer};
-use anyhow::Result;
+use anyhow::{bail, Result};
 use prost::{DecodeError, Message};
 use tauri::{App, Manager};
 
@@ -14,7 +14,7 @@ use crate::pb::Response;
 pub fn register_handlers(app: &mut App, srv: Arc<Mutex<KafkaServer>>) {
     let srv = Arc::new(Mutex::new(KafkaServer::new()));
     let srv_clone = srv.clone();
-    let mut window = app.get_window("main").unwrap();
+    let window = app.get_window("main").unwrap();
     app.app_handle().listen_global("event", move |e| {
         let binary: BTreeMap<u32, u8> = serde_json::from_str(e.payload().unwrap()).unwrap();
         let byte_info = binary.values().cloned().collect::<Vec<u8>>();
@@ -40,5 +40,12 @@ pub fn register_handlers(app: &mut App, srv: Arc<Mutex<KafkaServer>>) {
 }
 
 fn accept(req: &Request, srv: &mut KafkaServer) -> Result<Response> {
-    req.execute(srv)
+    if let Ok(resp) = req.execute(srv) {
+        match resp {
+            crate::command::Resp::Sync(s) => Ok(s),
+            crate::command::Resp::Stream(s) => bail!("not supported"),
+        }
+    } else {
+        bail!("not right")
+    }
 }

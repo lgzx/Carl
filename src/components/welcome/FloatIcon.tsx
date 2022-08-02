@@ -7,8 +7,8 @@ export interface FloatIconProp {
     callback: () => void,
 }
 
-export function FloatIcon(data: { icons?: FloatIconProp[] }) {
-    let { icons } = data;
+export function FloatIcon(data: { icons?: FloatIconProp[], className?: string }) {
+    let { icons, className } = data;
 
     icons = icons ? icons : []
 
@@ -24,7 +24,7 @@ export function FloatIcon(data: { icons?: FloatIconProp[] }) {
         )
     });
     return (
-        <div className="absolute right-10 bottom-8">
+        <div className={`absolute right-10 bottom-8 ${className}`}>
             <div className="flex gap-1 items-center justify-center shadow-lg rounded-sm py-1 px-2">
                 {buttons}
             </div>

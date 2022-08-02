@@ -9,7 +9,7 @@ pub struct Config {
 #[derive(serde::Serialize, serde::Deserialize)]
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Request {
-    #[prost(oneof="request::RequestCmd", tags="1, 2, 3, 4")]
+    #[prost(oneof="request::RequestCmd", tags="1, 2, 3, 4, 5, 6")]
     pub request_cmd: ::core::option::Option<request::RequestCmd>,
 }
 /// Nested message and enum types in `Request`.
@@ -25,6 +25,10 @@ pub mod request {
         Pullmessage(super::PullMessage),
         #[prost(message, tag="4")]
         Checkbroker(super::CheckBroker),
+        #[prost(message, tag="5")]
+        Listtopics(super::ListTopics),
+        #[prost(message, tag="6")]
+        Closechannel(super::CloseChannel),
     }
 }
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -56,4 +60,16 @@ pub struct ListConfig {
 pub struct PullMessage {
     #[prost(message, optional, tag="1")]
     pub cfg: ::core::option::Option<Config>,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ListTopics {
+    #[prost(string, tag="1")]
+    pub broker: ::prost::alloc::string::String,
+}
+#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(Clone, PartialEq, ::prost::Message)]
+pub struct CloseChannel {
+    #[prost(string, tag="1")]
+    pub channel: ::prost::alloc::string::String,
 }

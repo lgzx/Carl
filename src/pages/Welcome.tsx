@@ -15,7 +15,7 @@ export default function Welcome() {
 
     function refreshList() {
         config.configList().then((rsp: any) => {
-            let brokers = rsp?.data.map((x: any) => {
+            let brokers = rsp.map((x: any) => {
                 return {
                     broker: x?.broker
                 }
@@ -92,5 +92,5 @@ function openKafka(broker: string) {
 
 async function checkKafka(broker: string) {
     let rsp = await config.checkBroker(broker)
-    return rsp?.data
+    return rsp
 }

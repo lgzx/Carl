@@ -56,6 +56,18 @@ export interface Request {
          */
         checkbroker: CheckBroker;
     } | {
+        oneofKind: "listtopics";
+        /**
+         * @generated from protobuf field: abi.ListTopics listtopics = 5;
+         */
+        listtopics: ListTopics;
+    } | {
+        oneofKind: "closechannel";
+        /**
+         * @generated from protobuf field: abi.CloseChannel closechannel = 6;
+         */
+        closechannel: CloseChannel;
+    } | {
         oneofKind: undefined;
     };
 }
@@ -103,6 +115,24 @@ export interface PullMessage {
      * @generated from protobuf field: abi.Config cfg = 1;
      */
     cfg?: Config;
+}
+/**
+ * @generated from protobuf message abi.ListTopics
+ */
+export interface ListTopics {
+    /**
+     * @generated from protobuf field: string broker = 1;
+     */
+    broker: string;
+}
+/**
+ * @generated from protobuf message abi.CloseChannel
+ */
+export interface CloseChannel {
+    /**
+     * @generated from protobuf field: string channel = 1;
+     */
+    channel: string;
 }
 // @generated message type with reflection information, may provide speed optimized methods
 class Config$Type extends MessageType<Config> {
@@ -165,7 +195,9 @@ class Request$Type extends MessageType<Request> {
             { no: 1, name: "addconfig", kind: "message", oneof: "requestCmd", T: () => AddConfig },
             { no: 2, name: "listconfig", kind: "message", oneof: "requestCmd", T: () => ListConfig },
             { no: 3, name: "pullmessage", kind: "message", oneof: "requestCmd", T: () => PullMessage },
-            { no: 4, name: "checkbroker", kind: "message", oneof: "requestCmd", T: () => CheckBroker }
+            { no: 4, name: "checkbroker", kind: "message", oneof: "requestCmd", T: () => CheckBroker },
+            { no: 5, name: "listtopics", kind: "message", oneof: "requestCmd", T: () => ListTopics },
+            { no: 6, name: "closechannel", kind: "message", oneof: "requestCmd", T: () => CloseChannel }
         ]);
     }
     create(value?: PartialMessage<Request>): Request {
@@ -204,6 +236,18 @@ class Request$Type extends MessageType<Request> {
                         checkbroker: CheckBroker.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).checkbroker)
                     };
                     break;
+                case /* abi.ListTopics listtopics */ 5:
+                    message.requestCmd = {
+                        oneofKind: "listtopics",
+                        listtopics: ListTopics.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).listtopics)
+                    };
+                    break;
+                case /* abi.CloseChannel closechannel */ 6:
+                    message.requestCmd = {
+                        oneofKind: "closechannel",
+                        closechannel: CloseChannel.internalBinaryRead(reader, reader.uint32(), options, (message.requestCmd as any).closechannel)
+                    };
+                    break;
                 default:
                     let u = options.readUnknownField;
                     if (u === "throw")
@@ -228,6 +272,12 @@ class Request$Type extends MessageType<Request> {
         /* abi.CheckBroker checkbroker = 4; */
         if (message.requestCmd.oneofKind === "checkbroker")
             CheckBroker.internalBinaryWrite(message.requestCmd.checkbroker, writer.tag(4, WireType.LengthDelimited).fork(), options).join();
+        /* abi.ListTopics listtopics = 5; */
+        if (message.requestCmd.oneofKind === "listtopics")
+            ListTopics.internalBinaryWrite(message.requestCmd.listtopics, writer.tag(5, WireType.LengthDelimited).fork(), options).join();
+        /* abi.CloseChannel closechannel = 6; */
+        if (message.requestCmd.oneofKind === "closechannel")
+            CloseChannel.internalBinaryWrite(message.requestCmd.closechannel, writer.tag(6, WireType.LengthDelimited).fork(), options).join();
         let u = options.writeUnknownFields;
         if (u !== false)
             (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
@@ -459,3 +509,97 @@ class PullMessage$Type extends MessageType<PullMessage> {
  * @generated MessageType for protobuf message abi.PullMessage
  */
 export const PullMessage = new PullMessage$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class ListTopics$Type extends MessageType<ListTopics> {
+    constructor() {
+        super("abi.ListTopics", [
+            { no: 1, name: "broker", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<ListTopics>): ListTopics {
+        const message = { broker: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<ListTopics>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: ListTopics): ListTopics {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string broker */ 1:
+                    message.broker = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: ListTopics, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string broker = 1; */
+        if (message.broker !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.broker);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message abi.ListTopics
+ */
+export const ListTopics = new ListTopics$Type();
+// @generated message type with reflection information, may provide speed optimized methods
+class CloseChannel$Type extends MessageType<CloseChannel> {
+    constructor() {
+        super("abi.CloseChannel", [
+            { no: 1, name: "channel", kind: "scalar", T: 9 /*ScalarType.STRING*/ }
+        ]);
+    }
+    create(value?: PartialMessage<CloseChannel>): CloseChannel {
+        const message = { channel: "" };
+        globalThis.Object.defineProperty(message, MESSAGE_TYPE, { enumerable: false, value: this });
+        if (value !== undefined)
+            reflectionMergePartial<CloseChannel>(this, message, value);
+        return message;
+    }
+    internalBinaryRead(reader: IBinaryReader, length: number, options: BinaryReadOptions, target?: CloseChannel): CloseChannel {
+        let message = target ?? this.create(), end = reader.pos + length;
+        while (reader.pos < end) {
+            let [fieldNo, wireType] = reader.tag();
+            switch (fieldNo) {
+                case /* string channel */ 1:
+                    message.channel = reader.string();
+                    break;
+                default:
+                    let u = options.readUnknownField;
+                    if (u === "throw")
+                        throw new globalThis.Error(`Unknown field ${fieldNo} (wire type ${wireType}) for ${this.typeName}`);
+                    let d = reader.skip(wireType);
+                    if (u !== false)
+                        (u === true ? UnknownFieldHandler.onRead : u)(this.typeName, message, fieldNo, wireType, d);
+            }
+        }
+        return message;
+    }
+    internalBinaryWrite(message: CloseChannel, writer: IBinaryWriter, options: BinaryWriteOptions): IBinaryWriter {
+        /* string channel = 1; */
+        if (message.channel !== "")
+            writer.tag(1, WireType.LengthDelimited).string(message.channel);
+        let u = options.writeUnknownFields;
+        if (u !== false)
+            (u == true ? UnknownFieldHandler.onWrite : u)(this.typeName, message, writer);
+        return writer;
+    }
+}
+/**
+ * @generated MessageType for protobuf message abi.CloseChannel
+ */
+export const CloseChannel = new CloseChannel$Type();

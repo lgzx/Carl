@@ -1,12 +1,18 @@
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import config from './api/config';
 import './App.css';
 import LeftBar from './components/app/LeftBar';
 import { MessageList } from './components/app/MessageList';
 import CommandPlate from './components/CommandPlate';
+import { Editor } from './components/Editor';
 
 function App() {
+
+    const [param, setParam] = useSearchParams();
+
     useEffect(() => {
+        document.addEventListener("contextmenu", evt => evt.preventDefault())
     }, [])
 
     return (
@@ -14,14 +20,16 @@ function App() {
             {/* command plate */}
             <CommandPlate />
             {/* Layout start  */}
-            <div className='app-container grid grid-cols-6 grid-rows-4 min-h-screen '>
-                <div className='col-span-1 row-span-4 '>
-                    <LeftBar />
+            <div className='app-container grid grid-cols-8 grid-rows-4 min-h-screen '>
+                <div className='col-span-2 row-span-4 '>
+                    <LeftBar broker={param.get("broker") as string} />
                 </div>
-                <div className='col-span-5 row-span-3 border-b-2 overflow-y-scroll'>
+                <div className='col-span-6 row-span-3 border-b-2 overflow-y-auto'>
                     <MessageList />
                 </div>
-                <div className='col-span-5 row-span-1'></div>
+                <div className='col-span-6 row-span-1'>
+                    <Editor />
+                </div>
             </div>
         </div>
     );

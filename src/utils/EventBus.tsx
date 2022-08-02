@@ -4,6 +4,10 @@ export interface EventBus {
     notice(evt: string, payload: any): void;
 }
 
+export const EVENT_TOPIC_SUBSCRIBE = "topic-subscribe";
+export const EVENT_TOPIC_SUBSCRIBED = "topic-subscribed";
+export const EVENT_TOPIC_UNSUBSCRIBE = "topic-unsubscribe";
+
 const bus: EventBus = {
     registry: new Map(),
     register: function(evt: string, fn: (payload: any) => void): void {

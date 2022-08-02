@@ -1,9 +1,18 @@
 import { faSearch, faSearchMinus, faTable } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { setEnvironmentData } from "worker_threads";
+import config from "../../api/config";
+import { kafka } from "../../api/kafka";
+import bus, { EVENT_TOPIC_SUBSCRIBE, EVENT_TOPIC_SUBSCRIBED, EVENT_TOPIC_UNSUBSCRIBE } from "../../utils/EventBus";
 
-export default function LeftBar() {
+export interface TopicList {
+    broker: string
+}
+
+export default function LeftBar(props: TopicList) {
+
+    let { broker } = props;
 
     /* left-top-bar  */
 
@@ -32,23 +41,37 @@ export default function LeftBar() {
 
 
     /* listitem  */
-    const lists: string[] = [
-        "private-domain",
-        "private-domain-testprivate-domain-testprivate-domain-testprivate-domain-test",
-        "private-test",
-        "private-domain-puzu",
-    ];
+    const [topics, setTopics] = useState<string[]>([]);
+    useEffect(() => {
+        config.topicList(broker).then(rsp => setTopics(_ => rsp))
+        bus.register(EVENT_TOPIC_SUBSCRIBED, (payload: any) => {
+            setChannel(_ => payload?.channel);
+        });
+    }, []);
 
     const [selectNumber, setSelectNumber] = useState(-1);
+    const [currentChannel, setChannel] = useState("");
 
-    const listItem = lists.filter(x => search ? x.includes(search.toLowerCase()) : true).map((x, index) => {
+    const clickTopic = (index: number, topic: string) => {
+        setSelectNumber(old => {
+            bus.notice(EVENT_TOPIC_SUBSCRIBE, { topic: topic, broker: broker });
+            if (old !== -1) {
+                kafka.unsubscribe(currentChannel)
+            }
+            return index;
+        });
+    }
+
+    const filtered = topics.filter(x => search ? x.includes(search.toLowerCase()) : true)
+
+    const listItem = filtered.map((topic, index) => {
         const selected = selectNumber == index;
 
         return (
-            <div className={`pl-4 flex items-center p-1 ${selected ? "bg-blue-500 text-white" : ""}`} onClick={() => setSelectNumber(x => index)
+            <div className={`pl-4 flex items-center overflow-y-scroll p-1 ${selected ? "bg-blue-500 text-white" : ""}`} onClick={() => clickTopic(index, topic)
             }>
                 <FontAwesomeIcon icon={faTable} className={`mr-3  ${selected ? "text-white" : "text-blue-500"}`} />
-                <div className="text-sm  whitespace-nowrap">{x}</div>
+                <div className="text-sm  whitespace-nowrap">{topic}</div>
             </div >
         )
     });
@@ -59,7 +82,7 @@ export default function LeftBar() {
 
 
     return (
-        <div className="flex gap-1 flex-col min-h-full overflow-hidden bg-gray-100">
+        <div className="flex gap-1 flex-col max-h-screen min-h-full overflow-hidden bg-gray-100">
             <div className="flex cate h-8  items-center ">
                 {menuBar}
             </div>

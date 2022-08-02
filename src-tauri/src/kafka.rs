@@ -2,43 +2,52 @@ use std::{borrow::BorrowMut, io, time::Duration};
 
 use anyhow::Result;
 use kafka::{
-    client::KafkaClient,
-    consumer::Consumer,
+    client::{FetchOffset, KafkaClient},
+    consumer::{Consumer, MessageSet},
     producer::{Producer, Record},
 };
 use prost::bytes::Buf;
 
-use crate::pb::Config;
+use crate::{command::Closeable, pb::Config};
 
 pub trait KafkaTuber {
-    fn consume(&self, topic: String, f: &mut impl io::Write) -> Result<u32>;
+    fn consume(&self, topic: String, f: &mut (impl io::Write + Closeable)) -> Result<u32>;
     fn produce(&self, topic: String, payload: String);
     fn check(&mut self) -> Result<bool>;
+    fn topics(&mut self) -> Result<Vec<String>>;
 }
 
 #[derive(Debug)]
 pub struct Kafka {
-    pub client: KafkaClient,
+    client: KafkaClient,
 }
 
 impl Kafka {
     pub fn new(config: Config) -> Self {
         let broker = config.broker.to_string();
-        let mut client = KafkaClient::new(vec![broker]);
+        let client = KafkaClient::new(vec![broker]);
         Self { client }
     }
 }
 
 impl KafkaTuber for Kafka {
-    fn consume(&self, topic: String, f: &mut impl io::Write) -> Result<u32> {
+    fn consume(&self, topic: String, f: &mut (impl io::Write + Closeable)) -> Result<u32> {
         let mut client = KafkaClient::new(self.client.hosts().to_vec());
         client.load_metadata_all().unwrap();
         let mut consumer = Consumer::from_client(client)
             .with_topic(topic)
+            .with_fallback_offset(kafka::client::FetchOffset::Earliest)
             .create()
             .unwrap();
-        loop {
+        let mut stop = false;
+        'outer: loop {
             for ms in consumer.poll().unwrap().iter() {
+                if let Ok(_) = f.close_sig() {
+                    println!("break outer");
+                    break 'outer;
+                } else {
+                    println!("not stop");
+                };
                 for m in ms.messages() {
                     let data = m.value;
                     f.write(data);
@@ -46,6 +55,7 @@ impl KafkaTuber for Kafka {
                 consumer.consume_messageset(ms);
             }
         }
+        println!("close channel");
         Ok(5)
     }
 
@@ -57,7 +67,7 @@ impl KafkaTuber for Kafka {
             .with_required_acks(kafka::client::RequiredAcks::One)
             .create()
             .unwrap();
-        let record = Record::from_value("sample.topic", payload.as_bytes());
+        let record = Record::from_value(&topic, payload.as_bytes());
         p.send(&record).unwrap();
     }
 
@@ -66,6 +76,20 @@ impl KafkaTuber for Kafka {
             Ok(true)
         } else {
             Ok(false)
+        }
+    }
+
+    fn topics(&mut self) -> Result<Vec<String>> {
+        if let Ok(_) = self.client.load_metadata_all() {
+            let v = self
+                .client
+                .topics()
+                .iter()
+                .map(|t| t.name().to_string())
+                .collect();
+            Ok(v)
+        } else {
+            Ok(vec![])
         }
     }
 }
@@ -104,11 +128,11 @@ mod tests {
     fn test_tuber_can_produce() {
         let mut kafka = Kafka::new(Config {
             broker: "152.136.112.21:31092".to_string(),
-            topic: "sample.topic".to_string(),
+            topic: "sample.topic1111".to_string(),
         });
 
         kafka.produce(
-            "sample.topic".to_string(),
+            "sample.topic.11111".to_string(),
             kafka
                 .client
                 .topics()
